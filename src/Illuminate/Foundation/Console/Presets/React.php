@@ -30,11 +30,25 @@ class React extends Preset
      */
     protected static function updatePackageArray(array $packages)
     {
-        return [
-            'babel-preset-react' => '^6.23.0',
-            'react' => '^16.2.0',
-            'react-dom' => '^16.2.0',
-        ] + Arr::except($packages, ['vue']);
+        return Preset::REACT_PACKAGES + Arr::except($packages, array_keys(Preset::VUE_PACKAGES));
+    }
+
+    /**
+     * Add Jest configuration entries to the given package array.
+     *
+     * @param  array $packages
+     * @return array
+     */
+    protected static function updateTestConfigArray(array $packages)
+    {
+        $config = json_decode(file_get_contents(__DIR__.'/react-stubs/jest.config.json'), true);
+
+        $packages['scripts'] = array_merge($packages['scripts'] + $config['scripts']);
+
+        unset($packages['jest'], $packages['babel']);
+        unset($config['scripts']);
+
+        return array_merge($packages, $config);
     }
 
     /**
@@ -54,13 +68,24 @@ class React extends Preset
      */
     protected static function updateComponent()
     {
-        (new Filesystem)->delete(
-            resource_path('assets/js/components/ExampleComponent.vue')
-        );
+        (new Filesystem)->delete([
+            resource_path('assets/js/components/ExampleComponent.vue'),
+            resource_path('assets/js/components/ExampleComponent.spec.js')
+        ]);
 
         copy(
             __DIR__.'/react-stubs/Example.js',
             resource_path('assets/js/components/Example.js')
+        );
+
+        copy(
+            __DIR__.'/react-stubs/Example.spec.js',
+            resource_path('assets/js/components/Example.spec.js')
+        );
+
+        copy(
+            __DIR__.'/react-stubs/setupTests.js',
+            resource_path('assets/js/setupTests.js')
         );
     }
 

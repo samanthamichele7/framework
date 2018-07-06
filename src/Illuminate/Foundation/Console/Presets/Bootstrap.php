@@ -24,11 +24,18 @@ class Bootstrap extends Preset
      */
     protected static function updatePackageArray(array $packages)
     {
-        return [
-            'bootstrap' => '^4.0.0',
-            'jquery' => '^3.2',
-            'popper.js' => '^1.12',
-        ] + $packages;
+        return Preset::BOOTSTRAP_PACKAGES + $packages;
+    }
+
+    /**
+     * Update the given package array for test configuration.
+     *
+     * @param  array $packages
+     * @return array
+     */
+    protected static function updateTestConfigArray(array $packages)
+    {
+        return $packages;
     }
 
     /**
