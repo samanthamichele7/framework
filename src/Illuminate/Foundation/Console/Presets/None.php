@@ -3,6 +3,7 @@
 namespace Illuminate\Foundation\Console\Presets;
 
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Arr;
 
 class None extends Preset
 {
@@ -18,6 +19,7 @@ class None extends Preset
 
         tap(new Filesystem, function ($filesystem) {
             $filesystem->deleteDirectory(resource_path('assets/js/components'));
+            $filesystem->delete(resource_path('assets/js/setupTests.js'));
             $filesystem->delete(resource_path('assets/sass/_variables.scss'));
             $filesystem->deleteDirectory(base_path('node_modules'));
             $filesystem->deleteDirectory(public_path('css'));
@@ -33,14 +35,25 @@ class None extends Preset
      */
     protected static function updatePackageArray(array $packages)
     {
+        return Arr::except($packages, array_keys(
+            Preset::BOOTSTRAP_PACKAGES + Preset::REACT_PACKAGES + Preset::VUE_PACKAGES
+        ));
+    }
+
+    /**
+     * Remove Jest configuration entries from the given package array.
+     *
+     * @param  array $packages
+     * @return array
+     */
+    protected static function updateTestConfigArray(array $packages)
+    {
         unset(
-            $packages['bootstrap'],
-            $packages['jquery'],
-            $packages['popper.js'],
-            $packages['vue'],
-            $packages['babel-preset-react'],
-            $packages['react'],
-            $packages['react-dom']
+            $packages['scripts']['test'],
+            $packages['scripts']['test-update-snapshots'],
+            $packages['scripts']['test-watch'],
+            $packages['jest'],
+            $packages['babel']
         );
 
         return $packages;
